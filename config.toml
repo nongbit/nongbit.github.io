@@ -1,7 +1,10 @@
 title = 'Nongbit'
 baseURL = 'http://example.org/'
 languageCode = 'id-ID'
-googleAnalytics = 'G-JGYN30XQRG'
 
 [params]
 description = 'Blog Nongbit'
+
+[services]
+  [services.googleAnalytics]
+    id = 'G-JGYN30XQRG'
