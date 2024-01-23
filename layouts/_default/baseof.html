@@ -25,6 +25,7 @@
     {{ with resources.Get "css/app.css" | postCSS }}
         <link rel="stylesheet" href="{{ .RelPermalink }}">
     {{ end }}
+    <link rel="icon" type="image/svg+xml" href="/brand.svg" />
 </head>
 <body class="w-fit mx-auto bg-gray-100">
     {{ partial "header.html" . }}
