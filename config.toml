@@ -1,0 +1,7 @@
+title = 'Nongbit'
+baseURL = 'http://example.org/'
+languageCode = 'id-ID'
+googleAnalytics = ''
+
+[params]
+description = 'Blog Nongbit'

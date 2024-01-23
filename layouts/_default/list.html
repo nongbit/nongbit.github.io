@@ -1,0 +1,31 @@
+{{ define "main" }}
+<article class="prose lg:prose-lg xl:prose-xl">
+    <header>
+        <h1>{{ .Title }}</h1>
+    </header>
+
+    {{ $paginator := .Paginate .Pages }}
+    <nav class="space-y-12 mt-16 text-base not-prose">
+        {{ range $paginator.Pages }}
+        <article class="space-y-2">
+                <header>
+                    <h2 class="text-xl font-medium"><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
+                    <p class="text-sm opacity-75">
+                        <span>Posted at <time datetime="{{ .Date | time.Format "2006-01-02T15:04" }}">{{ .Date | time.Format ":date_long" }}</time></span>
+                        <span>&bullet;</span>
+                        <span>{{ .ReadingTime }} {{ cond (eq .ReadingTime 1) "min" "mins" }} reading</span>
+                    </p>
+                </header>
+
+                <div>
+                    <p>{{ .Summary }}&hellip;</p>
+                </div>
+            </article>
+        {{ end }}
+    </nav>
+
+    <nav>
+        {{ template "_internal/pagination.html" . }}
+    </nav>
+</article>
+{{ end }}

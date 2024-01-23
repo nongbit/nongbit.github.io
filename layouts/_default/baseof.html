@@ -1,0 +1,40 @@
+{{ $production := eq (getenv "HUGO_ENV") "production" | or (eq .Site.Params.env "production") }}
+<!DOCTYPE html>
+<html lang="{{ site.LanguageCode | default site.Language.Lang  }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ block "title" . }}{{ with .Params.Title }}{{ . }} | {{ end }}{{ .Site.Title }}{{ end }}</title>
+    <meta name="description" content="{{ with .Description }}{{ . }}{{ else }}{{if .IsPage}}{{ .Summary }}{{ else }}{{ with .Site.Params.description }}{{ . }}{{ end }}{{ end }}{{ end }}">
+    {{ if $production }}<meta name="robots" content="index, follow">{{ else }}<meta name="robots" content="noindex, nofollow">{{ end }}
+    {{ if .OutputFormats.Get "RSS" }}
+        {{ with .OutputFormats.Get "RSS" }}
+            <link href="{{ .RelPermalink }}" rel="alternate" type="application/rss+xml" title="{{ $.Site.Title }}" />
+            <link href="{{ .RelPermalink }}" rel="feed" type="application/rss+xml" title="{{ $.Site.Title }}" />
+        {{ end }}
+    {{ end }}
+    {{ if .Params.canonicalUrl }}
+        <link rel="canonical" href="{{ .Params.canonicalUrl }}">
+    {{ else }}
+        <link rel="canonical" href="{{ .Permalink }}">
+    {{ end }}
+    {{ template "_internal/schema.html" . }}
+    {{ if $production  }}
+        {{ template "_internal/google_analytics.html" . }}
+    {{ end }}
+    {{ with resources.Get "css/app.css" | postCSS }}
+        <link rel="stylesheet" href="{{ .RelPermalink }}">
+    {{ end }}
+</head>
+<body class="w-fit mx-auto bg-gray-100">
+    {{ partial "header.html" . }}
+
+    <main class="py-4 md:py-8 ml-20 sm:ml-28 md:ml-36 lg:ml-44 transition-[margin]">
+        {{ block "main" . }}{{ end }}
+    </main>
+
+    <footer class="py-4 md:py-8 ml-20 sm:ml-28 md:ml-36 lg:ml-44 transition-[margin]">
+        <p class="text-sm opacity-75">&copy; 2024 &bullet; Nongbit</p>
+    </footer>
+</body>
+</html>
