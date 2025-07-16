@@ -1,0 +1,43 @@
+{{ define "main" }}
+<h1 class="text-6xl font-extrabold">{{ .Title }}</h1>
+
+{{ $sorted := .Pages.ByDate.Reverse }}
+{{ $paginator := .Paginate $sorted }}
+
+<div class="space-y-12">
+    {{ range $paginator.Pages }}
+        <article class="prose lg:prose-lg max-w-none space-y-3">
+            <header>
+                <h2 class="title"><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
+                <p class="!-mt-5 text-sm"><time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "Monday, 2 January 2006" }}</time></p>
+            </header>
+
+            <div>
+                {{ .Summary }}
+            </div>
+        </article>
+    {{ end }}
+</div>
+
+<nav aria-label="Pagination" class="flex items-center justify-between">
+    {{ if $paginator.HasPrev }}
+        <a href="{{ $paginator.Prev.URL }}" class="inline-flex items-center gap-2 font-semibold hover:underline">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 15.75 3 12m0 0 3.75-3.75M3 12h18" />
+            </svg>
+            <span>Previous</span>
+        </a>
+    {{ else }}
+        <span></span>
+    {{ end }}
+
+    {{ if $paginator.HasNext }}
+        <a href="{{ $paginator.Next.URL }}" class="inline-flex items-center gap-2 font-semibold hover:underline text-right">
+            <span>Next</span>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M17.25 8.25 21 12m0 0-3.75 3.75M21 12H3" />
+            </svg>
+        </a>
+    {{ end }}
+</nav>
+{{ end }}
