@@ -1,4 +1,4 @@
-name: Build and Deploy Hugo site to GitHub Pages
+name: Build and Deploy Hugo site (User Site)
 
 on:
   push:
@@ -19,12 +19,8 @@ jobs:
           extended: true
 
       - name: Build Hugo site
-        run: hugo --minify
+        run: hugo --minify --destination .
 
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./public
-          publish_branch: gh-pages
-          force_orphan: true
+      - name: Remove non-site files
+        run: |
+          rm -rf content/ themes/ layouts/ resources/ .github/ config.* README.md
