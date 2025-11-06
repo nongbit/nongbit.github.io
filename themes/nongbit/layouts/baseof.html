@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="{{- site.Language.LanguageCode -}}" dir="{{- or site.Language.LanguageDirection `ltr` -}}">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{- if .IsHome -}}{{- site.Title -}}{{- else -}}{{- printf "%s | %s" .Title site.Title -}}{{- end -}}</title>
+  <meta name="description" content="{{- with .Description -}}{{- . -}}{{- else -}}{{- if .IsPage -}}{{- .Summary -}}{{- else -}}{{- with .Site.Params.description -}}{{- . -}}{{- end -}}{{- end -}}{{- end -}}">
+  {{- hugo.Generator -}}
+  {{- $production := hugo.IsProduction -}}
+  {{- $public := not .Params.private -}}
+
+  {{- if and $production $public -}}
+    <meta name="robots" content="index, follow">
+  {{- else -}}
+    <meta name="robots" content="noindex, nofollow">
+  {{- end -}}
+
+  {{- with .Params.author | compare.Default .Site.Params.author -}}
+    {{- $author := . -}}
+    {{- if reflect.IsSlice . -}}
+      {{- $author = collections.Delimit . ", " | transform.Plainify -}}
+    {{- end -}}
+    <meta name="author" content="{{- $author -}}">
+  {{- end -}}
+
+  {{- if .OutputFormats.Get "RSS" -}}
+    {{- with .OutputFormats.Get "RSS" -}}
+      <link href="{{- .RelPermalink -}}" rel="alternate" type="application/rss+xml" title="{{- $.Site.Title -}}" />
+      <link href="{{- .RelPermalink -}}" rel="feed" type="application/rss+xml" title="{{- $.Site.Title -}}" />
+    {{- end -}}
+  {{- end -}}
+
+  {{- if .Params.canonicalUrl -}}
+    <link rel="canonical" href="{{- .Params.canonicalUrl -}}">
+  {{- else -}}
+    <link rel="canonical" href="{{- .Permalink -}}">
+  {{- end -}}
+
+  {{- /* NOTE: These Hugo Internal Templates can be found starting at https://github.com/gohugoio/hugo/tree/master/tpl/tplimpl/embedded/templates */ -}}
+  {{- template "_internal/opengraph.html" . -}}
+  {{- template "_internal/schema.html" . -}}
+  {{- template "_internal/twitter_cards.html" . -}}
+
+  {{- if hugo.IsProduction -}}
+    {{- template "_internal/google_analytics.html" . -}}
+  {{- end -}}
+
+  {{- partialCached "head/favicon.html" . -}}
+  {{- partialCached "head/css.html" . -}}
+  {{- partialCached "head/js.html" . -}}
+</head>
+<body>
+  <header class="max-w-3xl p-6 mx-auto">
+    {{- partial "header.html" . -}}
+  </header>
+
+  <main class="max-w-3xl px-6 mx-auto mb-12 space-y-6">
+    {{- partial "breadcrumb.html" . -}}
+
+    {{- block "main" . -}}{{- end -}}
+  </main>
+
+  <footer class="max-w-3xl p-6 mx-auto">
+    {{- partial "footer.html" . -}}
+  </footer>
+</body>
+</html>

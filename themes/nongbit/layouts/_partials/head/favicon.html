@@ -1,0 +1,44 @@
+{{- /* Get favicon config with fallbacks */ -}}
+{{- $faviconFile := .Site.Params.favicon.file | default "favicon.ico" -}}
+{{- $faviconType := .Site.Params.favicon.type | default "" -}}
+
+{{- /* Determine MIME type from file extension if type not specified */ -}}
+{{- if not $faviconType }}
+  {{- $ext := lower (path.Ext $faviconFile) }}
+  {{- $faviconType = cond (eq $ext ".svg") "image/svg+xml" (printf "image/%s" (strings.TrimPrefix "." $ext)) }}
+  {{- /* Special case for ico */ -}}
+  {{- if eq $ext ".ico" }}
+    {{- $faviconType = "image/x-icon" }}
+  {{- end }}
+{{- end }}
+
+{{- /* Main Favicon */ -}}
+<link rel="icon" type="{{ $faviconType }}" href="{{ $faviconFile | relURL }}">
+
+{{- /* PNG Fallback for older browsers */ -}}
+{{- $pngPath := "favicon.png" -}}
+{{- if fileExists (add "static/" $pngPath) }}
+  <link rel="icon" type="image/png" href="{{ $pngPath | relURL }}">
+{{- else }}
+  {{- warnf "Fallback favicon %s not found in static directory" $pngPath }}
+{{- end }}
+
+{{- /* ICO Fallback for legacy browsers */ -}}
+{{- $icoPath := "favicon.ico" -}}
+{{- if fileExists (add "static/" $icoPath) }}
+  <link rel="icon" type="image/x-icon" href="{{ $icoPath | relURL }}">
+{{- end }}
+
+{{- /* Apple Touch Icon */ -}}
+{{- $applePath := "apple-touch-icon.png" -}}
+{{- if fileExists (add "static/" $applePath) }}
+  <link rel="apple-touch-icon" href="{{ $applePath | relURL }}">
+{{- else }}
+  {{- warnf "Apple touch icon %s not found in static directory" $applePath }}
+{{- end }}
+
+{{- /* Additional modern favicon formats */ -}}
+{{- $webpPath := "favicon.webp" -}}
+{{- if fileExists (add "static/" $webpPath) }}
+  <link rel="icon" type="image/webp" href="{{ $webpPath | relURL }}">
+{{- end }}

@@ -1,0 +1,19 @@
+{{- with . -}}
+  {{- if gt .TotalPages 1 -}}
+    <div class="flex gap-4 text-sm">
+      {{- /* Previous Page */ -}}
+      {{- if .HasPrev -}}
+        <a href="{{ .Prev.URL }}" class="text-sky-800 hover:underline">&laquo; Previous</a>
+      {{- else -}}
+        <span class="text-gray-400 cursor-not-allowed">&laquo; Previous</span>
+      {{- end -}}
+
+      {{- /* Next Page */ -}}
+      {{- if .HasNext -}}
+        <a href="{{ .Next.URL }}" class="text-sky-800 hover:underline">Next &raquo;</a>
+      {{- else -}}
+        <span class="text-gray-400 cursor-not-allowed">Next &raquo;</span>
+      {{- end -}}
+    </div>
+  {{- end -}}
+{{- end -}}

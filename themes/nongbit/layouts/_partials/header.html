@@ -1,0 +1,8 @@
+<div class="flex items-center justify-between pb-6 border-b">
+  <figure class="flex items-center gap-1">
+    <img src="/logo.svg" class="w-auto h-6">
+    <figcaption class="text-xl tracking-wide font-black uppercase">{{- site.Title -}}</figcaption>
+  </figure>
+
+  {{- partial "menu.html" (dict "menuID" "main" "page" .) -}}
+</div>

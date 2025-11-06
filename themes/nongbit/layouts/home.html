@@ -1,0 +1,23 @@
+{{- define "main" -}}
+  <div class="mt-12 space-y-12">
+    <article class="space-y-6">
+      <header>
+        <h1 class="text-2xl font-black">{{- .Title -}}</h1>
+      </header>
+
+      <div class="prose prose-slate max-w-none">
+        {{- .Content -}}
+      </div>
+    </article>
+
+    <div class="space-y-8">
+      {{- $pages := where .Site.RegularPages "Type" "in" .Site.Params.mainSections -}}
+      {{- $paginator := .Paginate $pages -}}
+      {{- partial "content/list.html" (dict "pages" $paginator.Pages) -}}
+    </div>
+
+    <nav>
+      {{- partial "pagination.html" $paginator -}}
+    </nav>
+  </div>
+{{- end -}}

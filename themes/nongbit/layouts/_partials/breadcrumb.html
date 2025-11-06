@@ -1,0 +1,66 @@
+{{- $page := . -}}
+
+{{- if and (ne .Kind "home") (in (slice "page" "term" "taxonomy") .Kind) -}}
+<nav aria-label="Breadcrumb" itemscope itemtype="https://schema.org/BreadcrumbList">
+  <ol class="flex flex-wrap -mt-2 text-sm [&>li:not(:last-child)]:after:content-['\00A0/\00A0']">
+    {{- /* Home */ -}}
+    <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+      <a href="/" class="text-sky-800 hover:underline" itemprop="item">
+        <span itemprop="name">Home</span>
+      </a>
+      <meta itemprop="position" content="1" />
+    </li>
+
+    {{- /* Taxonomy pages (e.g., /categories/) */ -}}
+    {{- if eq .Kind "taxonomy" -}}
+      <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+        <span itemprop="name">{{ .Data.Plural | humanize }}</span>
+        <meta itemprop="item" content="{{ .Permalink }}" />
+        <meta itemprop="position" content="2" />
+      </li>
+
+    {{- /* Term pages (e.g., /categories/web-development/) */ -}}
+    {{- else if eq .Kind "term" -}}
+      <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+        <a href="{{ .Parent.Permalink }}" class="text-sky-800 hover:underline" itemprop="item">
+          <span itemprop="name">{{ .Data.Plural | humanize }}</span>
+        </a>
+        <meta itemprop="position" content="2" />
+      </li>
+      <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+        <span itemprop="name">{{ .Title }}</span>
+        <meta itemprop="item" content="{{ .Permalink }}" />
+        <meta itemprop="position" content="3" />
+      </li>
+
+    {{- /* Regular pages */ -}}
+    {{- else if eq .Kind "page" -}}
+      {{- $position := 2 -}}
+
+      {{- /* Show first available taxonomy */ -}}
+      {{- range $taxonomy, $terms := .Params -}}
+        {{- if and (reflect.IsSlice $terms) (gt (len $terms) 0) -}}
+          {{- $term := index $terms 0 -}}
+          {{- if $term -}}
+            <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+              <a href="/{{ $taxonomy }}/{{ $term | urlize }}/" class="text-sky-800 hover:underline" itemprop="item">
+                <span itemprop="name">{{ $term | humanize }}</span>
+              </a>
+              <meta itemprop="position" content="{{ $position }}" />
+            </li>
+            {{- $position = add $position 1 -}}
+            {{- break -}}
+          {{- end -}}
+        {{- end -}}
+      {{- end -}}
+
+      {{- /* Current page */ -}}
+      <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+        <span itemprop="name">{{ .Title }}</span>
+        <meta itemprop="item" content="{{ .Permalink }}" />
+        <meta itemprop="position" content="{{ $position }}" />
+      </li>
+    {{- end -}}
+  </ol>
+</nav>
+{{- end -}}

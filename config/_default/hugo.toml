@@ -1,0 +1,34 @@
+baseURL = "https://nongbit.github.io/"
+languageCode = "en-us"
+title = "Nongbit"
+theme = "nongbit"
+
+[pagination]
+  pagerSize = 8
+  path = "page"
+
+[module]
+  [module.hugoVersion]
+    extended = false
+    min = "0.146.0"
+
+[taxonomies]
+  category = "categories"
+  series = "series"
+
+[params]
+  # Site identity
+  name = "Nongbit"
+  description = "Your company description"
+
+  # Content settings
+  mainSections = ["posts"]
+  singleSeries = true
+
+  # Taxonomy display names
+  taxonomyCategoryTitle = "Categories"
+  taxonomySeriesTitle = "Series"
+
+  # Favicon
+  [params.favicon]
+    file = "favicon.svg"

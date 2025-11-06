@@ -1,0 +1,20 @@
+{{- define "main" -}}
+  <article class="mt-12 space-y-12">
+    <header>
+      <h1 class="mb-4 text-2xl font-black">{{- .Title -}}</h1>
+
+      <div class="space-y-0.5">
+        {{- $dateMachine := .Date | time.Format "2006-01-02T15:04:05-07:00" -}}
+        {{- $dateHuman := .Date | time.Format ":date_long" -}}
+        <p class="text-sm">Posted at <time datetime="{{- $dateMachine -}}">{{- $dateHuman -}}</time></p>
+
+        {{- partial "terms.html" (dict "taxonomy" "categories" "page" .) -}}
+        {{- partial "terms.html" (dict "taxonomy" "series" "page" .) -}}
+      </div>
+    </header>
+
+    <div class="prose prose-slate max-w-none">
+      {{- .Content -}}
+    </div>
+  </article>
+{{- end -}}
