@@ -5,28 +5,16 @@
   {{- $pages = first $limit $pages -}}
 {{- end -}}
 
-{{- range $pages -}}
-  <article class="mb-8">
-    <h2 class="text-lg font-semibold">
-      <a href="{{ .RelPermalink }}" class="hover:text-sky-800 hover:underline">{{- .Title -}}</a>
-    </h2>
-
-    <p class="mt-0.5 text-sm">
-      <time datetime="{{ .Date.Format "2006-01-02" }}">{{- .Date.Format "January 2, 2006" -}}</time>
-    </p>
-
-    <p class="mt-3 text-sm">
-      {{- if .Description -}}
-        {{- .Description -}}
-      {{- else if .Summary -}}
-        {{- .Summary -}}
-      {{- else -}}
-        {{- .Content | plainify | truncate 150 -}}
-      {{- end -}}
-    </p>
-  </article>
-{{- else -}}
-  <div class="text-center py-12 text-gray-500">
-    <p>No articles found.</p>
-  </div>
-{{- end -}}
+<div class="space-y-6 divide-y [&>*:not(:last-child)]:pb-6">
+  {{- range $pages -}}
+    <article class="mb-8">
+      <h2 class="text-lg font-semibold"><a href="{{ .RelPermalink }}" class="hover:text-sky-800 hover:underline">{{- .Title -}}</a></h2>
+      <p class="mt-0.5 text-sm"><time datetime="{{ .Date.Format "2006-01-02" }}">{{- .Date.Format "January 2, 2006" -}}</time></p>
+      <p class="mt-3 text-sm line-clamp-3">{{- .Summary -}}</p>
+    </article>
+  {{- else -}}
+    <div class="text-center py-12 text-gray-500">
+      <p>No articles found.</p>
+    </div>
+  {{- end -}}
+</div>
