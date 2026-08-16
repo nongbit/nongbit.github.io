@@ -1,6 +1,6 @@
 ---
 title: "Dockerize Aplikasi PyQt5"
-date: 2026-08-17T08:00:00+07:00
+date: 2026-08-14T08:00:00+07:00
 draft: false
 summary: "Panduan lengkap membuat environment PyQt5 dengan Docker, dari development hingga production."
 categories: ["teknologi", "docker", "pyqt5"]

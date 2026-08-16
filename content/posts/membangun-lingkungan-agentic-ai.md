@@ -1,6 +1,6 @@
 ---
 title: "Membangun Lingkungan Agentic AI"
-date: 2026-08-18T08:00:00+07:00
+date: 2026-08-15T08:00:00+07:00
 draft: false
 summary: "Panduan lengkap menyiapkan Agentic AI dengan Ollama dan VS Code, dari setup server hingga praktik penggunaan."
 categories: ["teknologi", "agentic-ai", "ollama"]

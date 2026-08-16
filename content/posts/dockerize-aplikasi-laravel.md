@@ -1,6 +1,6 @@
 ---
 title: "Dockerize Aplikasi Laravel"
-date: 2026-08-16T08:00:00+07:00
+date: 2026-08-13T08:00:00+07:00
 draft: false
 summary: "Panduan lengkap membuat environment Laravel dengan Docker, dari development hingga production."
 categories: ["teknologi", "docker", "laravel"]
