@@ -1,10 +1,10 @@
 ---
-title: "Dockerize PyQt5 Application"
-date: 2026-08-14T08:00:00+07:00
+title: "Dockerize Aplikasi PyQt5"
+date: 2026-08-16T08:00:00+07:00
 draft: false
-summary: "Panduan lengkap membuat environment PyQt5 dengan Docker, dari development hingga production."
-categories: ["teknologi", "docker", "pyqt5"]
-tags: ["python", "docker-compose", "gui", "production"]
+summary: "Panduan lengkap menjalankan aplikasi GUI PyQt5 di dalam container Docker dengan dukungan X11, multi-stage build untuk production, dan struktur direktori modular sesuai konvensi Docker terkini."
+categories: ["teknologi", "docker", "python", "desktop"]
+tags: ["pyqt5", "python", "docker-compose", "gui", "x11", "multi-stage-build", "desktop"]
 ---
 
 ## Pendahuluan

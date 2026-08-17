@@ -2,9 +2,9 @@
 title: "Dockerize Aplikasi Laravel"
 date: 2026-08-17T08:00:00+07:00
 draft: false
-summary: "Panduan lengkap Dockerize Laravel dari development hingga production dengan arsitektur production-grade dan struktur folder modular."
-categories: ["teknologi", "docker", "laravel"]
-tags: ["php", "laravel", "docker-compose", "nginx", "production", "devops"]
+summary: "Panduan lengkap Dockerize Laravel dari development hingga production dengan arsitektur production-grade, multi-stage build, Nginx, PHP-FPM, queue worker, dan struktur folder modular sesuai konvensi Docker terkini."
+categories: ["teknologi", "docker", "laravel", "php"]
+tags: ["php", "laravel", "docker-compose", "nginx", "php-fpm", "production", "devops", "multi-stage-build"]
 ---
 
 ## Pendahuluan
