@@ -1,6 +1,6 @@
 ---
 title: "Rekomendasi Struktur Direktori untuk Proyek Sederhana"
-date: 2026-08-17T11:21:00+07:00
+date: 2026-07-17T11:21:00+07:00
 categories: ["DevOps", "Docker"]
 tags: ["docker", "docker-compose", "project-structure", "best-practices"]
 draft: false
