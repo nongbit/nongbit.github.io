@@ -1,5 +1,5 @@
 ---
-title: "Dockerize Aplikasi PyQt5"
+title: "Dockerize PyQt5 Application"
 date: 2026-08-14T08:00:00+07:00
 draft: false
 summary: "Panduan lengkap membuat environment PyQt5 dengan Docker, dari development hingga production."
@@ -72,13 +72,13 @@ rm -rf /tmp/wheel-env
 ## Struktur Proyek
 
 ```
-~/projects/pyqt-hello/
+~/projects/hello/
 ├─ pyproject.toml
 ├─ Dockerfile
 ├─ docker-compose.yml
 ├─ Makefile
 ├─ src/
-│  └─ main.py
+│  └─ app.py
 └─ tests/
 ```
 
@@ -88,10 +88,11 @@ rm -rf /tmp/wheel-env
 
 ```toml
 [tool.poetry]
-name = "pyqt-hello"
+name = "hello"
 version = "0.1.0"
 description = "A simple PyQt5 Hello World app"
-authors = ["Your Name <you@example.com>"]
+authors = ["Your Name <email@example.com>"]
+package-mode = false
 
 [tool.poetry.dependencies]
 python = "^3.11"
@@ -107,7 +108,7 @@ build-backend = "poetry.core.masonry.api"
 
 ## Kode Sumber Aplikasi
 
-**`src/main.py`**:
+**`src/app.py`**:
 
 ```python
 import sys
@@ -118,13 +119,10 @@ class MainWindow(QMainWindow):
         super().__init__()
         self.setWindowTitle("Hello PyQt in Docker")
         self.setGeometry(100, 100, 400, 200)
-        
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
-        
         layout = QVBoxLayout()
         central_widget.setLayout(layout)
-        
         label = QLabel("Hello from PyQt5 inside a Docker container!")
         label.setStyleSheet("font-size: 20px; font-weight: bold; color: #2980b9;")
         layout.addWidget(label)
@@ -142,7 +140,6 @@ if __name__ == "__main__":
 ## Dockerfile untuk Development
 
 ```dockerfile
-# Dockerfile
 FROM python:3.11-slim
 
 ENV PYTHONDONTWRITEBYTECODE=1
@@ -151,7 +148,8 @@ ENV PYTHONUNBUFFERED=1
 # Install system dependencies for PyQt5 and X11
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
-    libgl1-mesa-glx \
+    libgl1 \
+    libglib2.0-0 \
     libx11-6 \
     libxext6 \
     libxrender1 \
@@ -165,133 +163,146 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libxcb-xfixes0 \
     libxcb-xkb1 \
     libxkbcommon-x11-0 \
+    libdbus-1-3 \
+    libxcb-cursor0 \
+    libfontconfig1 \
+    libfreetype6 \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /workspace
 
-# Install Python dependencies using Poetry
+# Copy wheelhouse from host if exists (to speed up PyQt5 installation)
+COPY /wheelhouse /wheelhouse 2>/dev/null || true
+
 COPY pyproject.toml poetry.lock* /workspace/
+
 RUN pip install --upgrade pip \
     && pip install poetry \
     && poetry config virtualenvs.create false
 
-# Install PyQt5 from local wheelhouse for faster builds (if exists)
+# Install PyQt5 from wheelhouse if available, otherwise from PyPI
 RUN if [ -d "/wheelhouse" ]; then \
-        pip install --no-index --find-links /wheelhouse PyQt5 || true; \
+        pip install --no-index --find-links /wheelhouse PyQt5; \
+    else \
+        pip install PyQt5; \
     fi
 
-RUN poetry install --no-interaction --no-ansi
+# Install other dependencies (without the project itself)
+RUN poetry install --no-interaction --no-ansi --no-root
 
 COPY . /workspace
 
-# Create a non-root user
 RUN useradd --create-home dev && chown -R dev:dev /workspace
 USER dev
 
-# Environment variables for GUI
 ENV DISPLAY=:0
 ENV QT_X11_NO_MITSHM=1
 
-CMD ["poetry", "run", "python", "src/main.py"]
+CMD ["python", "src/app.py"]
 ```
 
 ### Penjelasan Best Practices:
-- **Dependensi sistem** mencakup library X11 dan OpenGL (`libgl1-mesa-glx`) yang diperlukan PyQt5.
-- **Wheelhouse** mempercepat build jika tersedia.
+- **Dependensi sistem** mencakup library X11 dan OpenGL (`libgl1`) yang diperlukan PyQt5.
+- **Wheelhouse** diperiksa dan disalin jika ada di host, kemudian digunakan oleh `pip install --find-links` untuk mempercepat build.
 - **User `dev` non-root** meningkatkan keamanan.
 - **Environment variables** `DISPLAY` dan `QT_X11_NO_MITSHM` diperlukan agar GUI muncul di host.
 
 ## Docker Compose
 
 ```yaml
-# docker-compose.yml
 services:
   app:
     build: .
     volumes:
-      - ./:/workspace:delegated
-      - ~/wheelhouse:/wheelhouse:ro   # Mount local wheelhouse
-      - /tmp/.X11-unix:/tmp/.X11-unix:rw  # X11 socket
+      - ./src:/workspace/src:delegated
+      - ~/wheelhouse:/wheelhouse:ro
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
     environment:
       - PYTHONUNBUFFERED=1
       - DISPLAY=${DISPLAY:-:0}
       - QT_X11_NO_MITSHM=1
-    network_mode: "host"  # Diperlukan untuk koneksi X11
+      - LIBGL_ALWAYS_SOFTWARE=1
+      - GALLIUM_DRIVER=llvmpipe
 ```
 
 ### Penjelasan:
 - **Volume X11**: `/tmp/.X11-unix` adalah socket komunikasi dengan X server.
-- **Network Mode `host`**: Cara termudah agar container dapat terhubung ke X server.
-- **Volume Wheelhouse**: Mount `~/wheelhouse` dari host ke container sebagai read-only.
+- **Volume Wheelhouse**: Mount `~/wheelhouse` dari host ke container sebagai read‑only (berguna jika container perlu mengakses wheel di runtime, meskipun build sudah memanfaatkannya).
+- **Variabel lingkungan untuk software rendering** – opsional, membantu jika tidak ada akselerasi GPU.
 
 ## Makefile
 
 ```makefile
-# Makefile
 build:
-	docker compose build
+    docker compose build --no-cache
 
 up:
-	@echo "Setting X11 permissions..."
-	xhost +local:root
-	docker compose up
+    @echo "Setting X11 permissions..."
+    xhost +local:
+    docker compose up
 
 down:
-	docker compose down
-	xhost -local:root
+    docker compose down
+    xhost -local:
 
 shell:
-	docker compose run --rm app bash
+    docker compose run --rm app bash
 
 test:
-	docker compose run --rm app poetry run pytest
+    docker compose run --rm app poetry run pytest
 
 wheelhouse:
-	@echo "Creating PyQt5 wheelhouse at ~/wheelhouse..."
-	mkdir -p ~/wheelhouse
-	python3 -m venv /tmp/wheel-env
-	. /tmp/wheel-env/bin/activate && pip download --dest ~/wheelhouse PyQt5
-	deactivate
-	rm -rf /tmp/wheel-env
+    @echo "Creating PyQt5 wheelhouse at ~/wheelhouse..."
+    mkdir -p ~/wheelhouse
+    python3 -m venv /tmp/wheel-env
+    . /tmp/wheel-env/bin/activate && pip download --dest ~/wheelhouse PyQt5
+    deactivate
+    rm -rf /tmp/wheel-env
+
+lock:
+    docker compose run --rm app poetry lock
 ```
 
-> **Catatan Keamanan X11:** `xhost +local:root` membuka izin bagi container untuk mengakses layar host. Jika container mati mendadak, izin tetap terbuka. Tutup secara manual dengan `xhost -local:root`.
+> **Catatan Keamanan X11:** `xhost +local:` mengizinkan koneksi dari semua program lokal (termasuk container) tanpa autentikasi tambahan, tetapi tetap aman karena tidak membuka akses dari jaringan. Jika container mati mendadak, izin tetap terbuka; tutup secara manual dengan `xhost -local:` atau jalankan `make down`.
 
 ## Workflow: Memulai Proyek Baru
 
 ```bash
 # 1. Buat direktori proyek
-mkdir -p ~/projects/pyqt-hello
-cd ~/projects/pyqt-hello
+mkdir -p ~/projects/hello
+cd ~/projects/hello
 
-# 2. Buat file pyproject.toml dan src/main.py sesuai template
+# 2. Buat file pyproject.toml dan src/app.py sesuai template
 
 # 3. Buat Dockerfile, docker-compose.yml, dan Makefile sesuai template
 
 # 4. (Opsional) Buat wheelhouse
 make wheelhouse
 
-# 5. Bangun image
+# 5. (Opsional) Buat poetry.lock (jika belum ada)
+make lock
+
+# 6. Bangun image
 make build
 
-# 6. Jalankan aplikasi
+# 7. Jalankan aplikasi
 make up
 
 # Sebuah jendela GUI akan muncul di desktop Anda
 
-# 7. Hentikan aplikasi
+# 8. Hentikan aplikasi
 make down
 ```
 
 ## Workflow Development Harian
 
 ### Mengedit Kode
-Ubah `src/main.py` atau file lain. Karena volume terpasang, perubahan langsung terlihat. Untuk melihat perubahan GUI, restart container (`Ctrl+C` lalu `make up`).
+Ubah `src/app.py` atau file lain. Karena volume terpasang, perubahan langsung terlihat. Untuk melihat perubahan GUI, restart container (`Ctrl+C` lalu `make up`).
 
 ### Masuk ke Container Shell
 ```bash
 make shell
-poetry run python src/main.py  # Jalankan langsung untuk debugging
+poetry run python src/app.py  # Jalankan langsung untuk debugging
 exit
 ```
 
@@ -304,8 +315,11 @@ make test
 Gunakan `ipdb` atau `pdb` dengan breakpoint. Jalankan container dengan `docker compose run --rm app` agar input terminal dapat diteruskan.
 
 ### Rebuild Image
+
+Jika ada perubahan dependensi di pyproject.toml maka build ulang image.
+
 ```bash
-make build  # Jika ada perubahan dependensi di pyproject.toml
+make build
 ```
 
 ### Menghentikan Container
@@ -343,13 +357,19 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /workspace
+
+# Copy wheelhouse if exists
+COPY /wheelhouse /wheelhouse 2>/dev/null || true
+
 COPY pyproject.toml poetry.lock* /workspace/
 RUN pip install --upgrade pip \
     && pip install poetry \
     && poetry config virtualenvs.create false
 
 RUN if [ -d "/wheelhouse" ]; then \
-        pip install --no-index --find-links /wheelhouse PyQt5 || true; \
+        pip install --no-index --find-links /wheelhouse PyQt5; \
+    else \
+        pip install PyQt5; \
     fi
 
 RUN poetry install --no-interaction --no-ansi --no-dev
@@ -386,7 +406,8 @@ USER dev
 ENV DISPLAY=:0
 ENV QT_X11_NO_MITSHM=1
 
-CMD ["python", "src/main.py"]  # Poetry tidak diperlukan di production
+# Poetry is not needed at runtime
+CMD ["python", "src/app.py"]
 ```
 
 **Membangun image production:**
