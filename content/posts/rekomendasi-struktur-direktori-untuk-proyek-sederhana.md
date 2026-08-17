@@ -1,16 +1,13 @@
 ---
 title: "Rekomendasi Struktur Direktori untuk Proyek Sederhana"
 date: 2026-07-17T11:21:00+07:00
+summary: "Panduan praktis struktur proyek berbasis Docker Compose yang mengikuti konvensi terkini."
 categories: ["DevOps", "Docker"]
 tags: ["docker", "docker-compose", "project-structure", "best-practices"]
 draft: false
 ---
 
-# Rekomendasi Struktur Direktori untuk Proyek Sederhana
-
 Dalam pengembangan aplikasi modern, Docker Compose telah menjadi alat standar untuk mengelola aplikasi multi-kontainer. Namun, pertanyaan yang sering muncul adalah: **bagaimana struktur direktori yang paling tepat dan efisien?**
-
-Artikel ini menyajikan panduan praktis struktur proyek berbasis Docker Compose yang mengikuti konvensi terkini, serta membahas kelebihan dan kekurangannya.
 
 ---
 
